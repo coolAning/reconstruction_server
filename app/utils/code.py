@@ -12,6 +12,7 @@ class ResponseCode(object):
     MobileNumberError = 40008  # 手机号错误
     FrequentOperation = 40009  # 操作频繁,请稍后再试
     PasswordError = 40010  # 密码错误
+    AccountDuplicate = 40011  # 账号重复
     
 
 
@@ -25,3 +26,4 @@ class ResponseMessage(object):
     VerificationCodeError = "验证码错误"
     PleaseSignIn = "请登陆"
     PasswordError = "密码错误"
+    AccountDuplicate = "账号重复"

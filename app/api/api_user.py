@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 @route(bp, '/login', methods=["POST"])
 def login():
-    
     res = ResMsg()
     res.update(code=ResponseCode.AccountOrPassWordErr)
     user = db.session.query(User).filter(User.account == request.json.get("account")).first()
@@ -40,3 +39,20 @@ def changePassword():
         else:
             res.update(code=ResponseCode.PasswordError)
     return res.data
+
+@route(bp, '/register', methods=["POST"])
+def register():
+    res = ResMsg()
+    res.update(code=ResponseCode.Fail)
+    account = request.json.get("account")
+    password = request.json.get("password")
+    user_check = db.session.query(User).filter(User.account == account).first()
+    if user_check:
+        res.update(code=ResponseCode.AccountDuplicate)
+    else:
+        user=User(account=account,password=password)
+        db.session.add(user)
+        db.session.commit()
+        res.update(code=ResponseCode.Success)
+    return res.data
+    
