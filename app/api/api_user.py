@@ -1,13 +1,15 @@
+from datetime import datetime
 import logging
 
 from flask import Blueprint
 
-from app.models.model import User
+from app.models.model import Captcha, User
 from app.utils.core import db
 from flask import request
 from app.utils.response import ResMsg
-from app.utils.util import route
+from app.utils.util import route, send_msg
 from app.utils.code import ResponseCode
+import random
 
 bp = Blueprint("user", __name__, url_prefix='/user')
 
@@ -54,5 +56,37 @@ def register():
         db.session.add(user)
         db.session.commit()
         res.update(code=ResponseCode.Success)
+    return res.data
+
+@route(bp, '/captcha', methods=["POST"])
+def captcha():
+    res = ResMsg()
+    res.update(code=ResponseCode.Fail)
+    account = request.json.get("account")
+    captcha_code = random.randint(100000, 999999)
+    captcha_check = db.session.query(Captcha).filter(Captcha.account == account).first()
+    if captcha_check:
+        time= captcha_check.time
+        if (datetime.now() - time).seconds < 60:
+            res.update(code=ResponseCode.CaptchaSendTooFrequent)
+            return res.data
+        elif (datetime.now() - time).seconds > 60:
+            captcha_check.code = captcha_code
+            captcha_check.time = datetime.now()
+            db.session.commit()
+            
+            
+            
+    else:
+        captcha = Captcha(account=account,code=captcha_code)
+        db.session.add(captcha)
+        db.session.commit()
+    # 发送验证码
+    to = [account]
+    title = '【三维重建】忘记密码'
+    send_msg(to=to, title=title ,captcha=captcha_code)
+    
+    res.update(code=ResponseCode.Success)
+    
     return res.data
     

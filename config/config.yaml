@@ -15,6 +15,13 @@ COMMON: &common #标识
   # 响应消息
   RESPONSE_MESSAGE: ./config/msg.yaml
 
+  # 邮件配置
+  MAIL_SERVER: 'smtp.163.com'
+  MAIL_PORT: 25 # 25 465
+  MAIL_USERNAME: 'neu_aning@163.com'
+  MAIL_PASSWORD: TOECGEADFVVKUIVT
+
+
 
 
 

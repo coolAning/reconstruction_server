@@ -1,7 +1,11 @@
 from functools import wraps
 
-from flask import jsonify
+from flask import jsonify, render_template
 from app.utils.response import ResMsg
+from flask_mail import Message
+from threading import Thread
+from flask import current_app
+from flask_mail import Mail  # Import the mail object from Flask-Mail
 
 
 def route(bp, *args, **kwargs):
@@ -74,3 +78,19 @@ def view_route(f):
             return jsonify(rv)
 
     return decorator
+
+
+def send_msg(to, title, captcha, **kwargs):
+    app = current_app._get_current_object()  # 获取当前Flask应用对象
+    msg = Message(title, sender='三维重建<neu_aning@163.com>', recipients=to)
+    msg.body = '你的验证码是: {}'.format(captcha)
+    thr = Thread(target=send_sync_msg, args=[app, msg])
+    thr.start()
+    return thr
+
+
+def send_sync_msg(app, msg):
+    with app.app_context():
+        mail = Mail(app)
+        mail.send(msg)
+
