@@ -63,30 +63,55 @@ def captcha():
     res = ResMsg()
     res.update(code=ResponseCode.Fail)
     account = request.json.get("account")
-    captcha_code = random.randint(100000, 999999)
+    user = db.session.query(User).filter(User.account == account).first()
+    if user:
+        captcha_code = random.randint(100000, 999999)
+        captcha_check = db.session.query(Captcha).filter(Captcha.account == account).first()
+        if captcha_check:
+            time= captcha_check.time
+            if (datetime.now() - time).seconds < 60:
+                res.update(code=ResponseCode.CaptchaSendTooFrequent)
+                return res.data
+            elif (datetime.now() - time).seconds > 60:
+                captcha_check.code = captcha_code
+                captcha_check.time = datetime.now()
+                db.session.commit()
+        else:
+            captcha = Captcha(account=account,code=captcha_code)
+            db.session.add(captcha)
+            db.session.commit()
+        # 发送验证码
+        to = [account]
+        title = '【三维重建】忘记密码'
+        send_msg(to=to, title=title ,captcha=captcha_code)
+        
+        res.update(code=ResponseCode.Success)
+    else:
+        res.update(code=ResponseCode.AccountNotFound)
+    
+    return res.data
+
+@route(bp, '/forgetPassword', methods=["POST"])
+def forgetPassword():
+    res = ResMsg()
+    res.update(code=ResponseCode.Fail)
+    account = request.json.get("account")
+    new_password = request.json.get("new_password")
+    captcha = request.json.get("captcha")
+    user = db.session.query(User).filter(User.account == account).first()
     captcha_check = db.session.query(Captcha).filter(Captcha.account == account).first()
     if captcha_check:
-        time= captcha_check.time
-        if (datetime.now() - time).seconds < 60:
-            res.update(code=ResponseCode.CaptchaSendTooFrequent)
-            return res.data
-        elif (datetime.now() - time).seconds > 60:
-            captcha_check.code = captcha_code
-            captcha_check.time = datetime.now()
-            db.session.commit()
-            
-            
-            
+        if (datetime.now() - captcha_check.time).seconds > 300:
+            res.update(code=ResponseCode.InvalidOrExpired)
+        else:
+            if captcha_check.code == captcha:
+                user.password = new_password
+                db.session.delete(captcha_check)
+                db.session.commit()
+                res.update(code=ResponseCode.Success)
+            else:
+                res.update(code=ResponseCode.CaptchaError)
     else:
-        captcha = Captcha(account=account,code=captcha_code)
-        db.session.add(captcha)
-        db.session.commit()
-    # 发送验证码
-    to = [account]
-    title = '【三维重建】忘记密码'
-    send_msg(to=to, title=title ,captcha=captcha_code)
-    
-    res.update(code=ResponseCode.Success)
-    
+        res.update(code=ResponseCode.CaptchaError)
     return res.data
     

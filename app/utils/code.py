@@ -14,6 +14,8 @@ class ResponseCode(object):
     PasswordError = 40010  # 密码错误
     AccountDuplicate = 40011  # 账号重复
     CaptchaSendTooFrequent = 40012  # 验证码发送过于频繁
+    CaptchaError = 40013  # 验证码错误
+    AccountNotFound = 40014  # 账号不存在
     
 
 
@@ -29,3 +31,5 @@ class ResponseMessage(object):
     PasswordError = "密码错误"
     AccountDuplicate = "账号重复"
     CaptchaSendTooFrequent = "验证码发送过于频繁"
+    CaptchaError = "验证码错误"
+    AccountNotFound = "账号不存在"
