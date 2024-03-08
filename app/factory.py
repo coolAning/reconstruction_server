@@ -38,7 +38,7 @@ def create_app(config_name, config_path=None):
             # 检查是否存在用户
         if not User.query.first():
             # 添加默认用户记录
-            default_user = User(account='admin', password='1')
+            default_user = User(account='admin', password='C4CA4238A0B923820DCC509A6F75849B')
             db.session.add(default_user)
             db.session.commit()
         
