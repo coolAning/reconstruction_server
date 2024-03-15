@@ -25,7 +25,8 @@ def create_app(config_name, config_path=None):
     # 更新Celery配置信息
     celery_conf = "redis://{}:{}/{}".format(app.config['REDIS_HOST'], app.config['REDIS_PORT'], app.config['REDIS_DB'])
     celery_app.conf.update({"broker_url": celery_conf, "result_backend": celery_conf})
-    
+    # 保存 Celery 实例的引用
+    app.celery_app = celery_app
     
 
     # 注册接口

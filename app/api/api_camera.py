@@ -51,14 +51,13 @@ def upload_file():
                         # 如果目录不存在，创建目录
                         os.makedirs(dirpath)
                     file.save(filepath)
-                    video = Video(user_id=user_id, name=filename)
+                    out_path = os.path.join(current_app.config['UPLOAD_FOLDER'], path,'transforms.json')
+                    # 使用colmap处理视频数据
+                    result = process_video.delay(filepath,out_path,user_id,filename)
+                    video = Video(user_id=user_id, name=filename, status=0 ,task_id=result.id)
                     db.session.add(video)
                     db.session.commit()
-                    res.update(code=ResponseCode.Success)
-                    out_path = os.path.join(current_app.config['UPLOAD_FOLDER'], path,'transforms.json')
-                    print(out_path)
-                    # 使用colmap处理视频数据
-                    process_video.delay(filepath,out_path)
+                    res.update(code=ResponseCode.Success, data={"task_id": result.id})
      
             else:
                 res.update(code=ResponseCode.InvalidFileType)
