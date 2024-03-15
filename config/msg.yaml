@@ -16,6 +16,9 @@ zh_CN: &zh
   40012: "验证码发送频繁,请稍后再试"
   40013: "验证码错误"
   40014: "账号不存在"
+  40015: "未选择文件"
+  40016: "无效文件类型"
+  40017: "文件名重复"
 
 en:
   <<: *zh
@@ -37,3 +40,6 @@ en:
   40012: "Verification code sent frequently, please try again later"
   40013: "Verification code error"
   40014: "Account does not exist"
+  40015: "No file selected"
+  40016: "Invalid file type"
+  40017: "Duplicate file name"

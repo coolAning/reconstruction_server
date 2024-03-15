@@ -21,6 +21,18 @@ COMMON: &common #标识
   MAIL_USERNAME: 'neu_aning@163.com'
   MAIL_PASSWORD: TOECGEADFVVKUIVT
 
+  # 文件配置
+  UPLOAD_FOLDER: ./video  # 上传文件夹路径
+  ALLOWED_EXTENSIONS: {'mp4', 'avi', 'mov', 'flv'}  # 允许的视频文件扩展名
+
+  ROOT_PATH: ./
+
+  # redis配置
+  REDIS_EXPIRE: 60*60
+  REDIS_HOST: 127.0.0.1
+  REDIS_PORT: 6379
+  REDIS_DB: 1
+
 
 
 

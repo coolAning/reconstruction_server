@@ -16,6 +16,9 @@ class ResponseCode(object):
     CaptchaSendTooFrequent = 40012  # 验证码发送过于频繁
     CaptchaError = 40013  # 验证码错误
     AccountNotFound = 40014  # 账号不存在
+    NoSelectedFile = 40015  # 未选择文件
+    InvalidFileType = 40016  # 无效文件类型
+    FileNameDuplicate = 40017 # 文件名重复
     
 
 
@@ -33,3 +36,6 @@ class ResponseMessage(object):
     CaptchaSendTooFrequent = "验证码发送过于频繁"
     CaptchaError = "验证码错误"
     AccountNotFound = "账号不存在"
+    NoSelectedFile = "未选择文件"
+    InvalidFileType = "无效文件类型"
+    FileNameDuplicate = "文件名重复"

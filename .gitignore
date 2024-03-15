@@ -11,3 +11,10 @@ build/
 *.egg-info/
 logs/errors.log
 logs/info.log
+video/
+external/
+colmap.db
+colmap.-shm
+colmap.wal
+colmap_text
+colmap_sparse

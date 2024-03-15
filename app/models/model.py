@@ -22,4 +22,11 @@ class Captcha(db.Model):
     account = db.Column(db.String(20), ForeignKey('user.account'), nullable=False)  # 用户账号
     code = db.Column(db.String(20), nullable=False)  # 验证码
     time = db.Column(db.DateTime, default=datetime.now)  # 发送时间
-    
+class Video(db.Model):
+    """
+    视频文件表
+    """
+    __tablename__ = 'video'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, ForeignKey('user.id'), nullable=False)  # 用户id
+    name = db.Column(db.String(20), nullable=False)  # 文件名 
