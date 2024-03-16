@@ -8,6 +8,10 @@ COMMON: &common #标识
   # 数据库连接
   SQLALCHEMY_DATABASE_URI: 'sqlite:///reconstruction.db'
   SQLALCHEMY_TRACK_MODIFICATIONS: False
+
+  # 算法端地址
+  ALGORITHM_URL: http://127.0.0.1:5001
+
   # 日志配置文件路径
   LOGGING_CONFIG_PATH: ./config/logging.yaml
   # 日志文件存放位置
@@ -28,7 +32,7 @@ COMMON: &common #标识
   ROOT_PATH: ./
 
   # redis配置
-  REDIS_EXPIRE: 60*60
+  # REDIS_EXPIRE: 60*60
   REDIS_HOST: 127.0.0.1
   REDIS_PORT: 6379
   REDIS_DB: 1

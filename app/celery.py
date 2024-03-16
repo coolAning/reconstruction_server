@@ -19,7 +19,7 @@ celery_app = Celery(__name__)
 
 
 @celery_app.task(bind=True)
-def process_video(self , video_path , out_path,user_id,filename):
+def process_video(self , video_path , out_path,user_id,filename,n_steps):
     # 这里是你的长时间运行的任务
     command = ["python", "colmap2nerf.py", "--video_in", video_path, "--video_fps", "2", "--run_colmap", "--aabb_scale", "32", "--out", out_path, "--overwrite"]
     # 创建一个子进程来运行命令，并获取子进程的输出
@@ -51,13 +51,14 @@ def process_video(self , video_path , out_path,user_id,filename):
         
     os.remove(video_path)
         
-    process_file.delay(filename)
+    process_file.delay(filename,user_id,n_steps)
     
     return rc
 
 @celery_app.task
-def process_file(filename, filepath="./video"):
-    filename = filename.split('.')[0]
+def process_file(fullfilename, user_id, n_steps,filepath="./video"):
+    
+    filename = fullfilename.split('.')[0]
     
     # 创建 zip 文件
     zip_path = os.path.join(filepath, filename)
@@ -73,10 +74,21 @@ def process_file(filename, filepath="./video"):
     if os.path.exists(zip_file_path):
         with open(zip_file_path, 'rb') as f:
             try:
-                requests.post('http://127.0.0.1:6000/upload', files={'file': f})
+                url = current_app.config['ALGORITHM_URL']
+                response = requests.post(f'{url}/upload', files={'file': f} ,data={'n_steps': n_steps})
+                response.raise_for_status()  # 抛出 HTTP 错误，如果有的话
+                data = response.json()  # 获取 JSON 数据
+                task_id = data.get('task_id')
+                # 将 task_id 存储到数据库中
+                video = Video.query.filter_by(user_id=user_id,name=fullfilename).first()
+                if video:
+                    video.task_id = task_id
+                    db.session.commit()
             except requests.exceptions.RequestException as e:
                 print(f'Failed to send file: {e}')
     
     # 删除 zip 文件
     if os.path.exists(zip_file_path):
         os.remove(zip_file_path)
+        
+        
