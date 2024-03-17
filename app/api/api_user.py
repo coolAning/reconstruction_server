@@ -22,7 +22,7 @@ def login():
     user = db.session.query(User).filter(User.account == request.json.get("account")).first()
     if user:
         if user.password == request.json.get("password"):
-            res.update(code=ResponseCode.Success)
+            res.update(code=ResponseCode.Success,data={"userId":user.id})
     return res.data
 
 @route(bp, '/changePassword', methods=["POST"])
