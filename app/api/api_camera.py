@@ -31,6 +31,7 @@ def upload_file():
      # 从表单中获取 user_id
     user_id = request.form.get('user_id', type=int)
     n_steps = request.form.get('n_steps', type=int)
+    video_name = request.form.get('video_name', type=str)
     if 'file' not in request.files:
         res.update(code=ResponseCode.InvalidParameter)
     else:
@@ -39,7 +40,7 @@ def upload_file():
             res.update(code=ResponseCode.NoSelectedFile)
         else:
             if file and allowed_file(file.filename):
-                filename = secure_filename(str(user_id) +'_'+ file.filename)
+                filename = secure_filename(str(user_id) +'_'+ video_name + '.mp4')
                 path = filename.rsplit('.', 1)[0]
                 filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], path , filename)
                 video = Video.query.filter_by(user_id=user_id,name=filename).first()                
