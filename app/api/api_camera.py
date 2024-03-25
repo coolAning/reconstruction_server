@@ -78,5 +78,27 @@ def complete():
         video.task_id = None
         db.session.commit()
         res.update(code=ResponseCode.Success)
+    # 暂时采取发送渲染请求的方法
+    url = current_app.config['ALGORITHM_URL']+ '/render'
+    
+    data = {'origin': True,'filename':video.name.split('.')[0]}
+    requests.post(url, json=data)
     return res.data
 
+@route(bp, '/getModelList', methods=['POST'])
+def get_model_list():
+    res = ResMsg()
+    res.update(code=ResponseCode.SystemError)
+    user_id = request.json.get("user_id")
+    videos = Video.query.filter_by(user_id=user_id).all()
+    data = []
+    url = current_app.config['ALGORITHM_URL']+ '/render'
+    
+    
+    for video in videos:
+        if video.status == 2:
+            postData = {'origin': True,'filename':video.name.split('.')[0]}
+            response = requests.post(url, json=postData)
+            data.append({"url":response.json().get("url"),"name":video.name.split('.')[0]})
+    res.update(code=ResponseCode.Success,data=data)
+    return res.data
