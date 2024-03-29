@@ -99,6 +99,29 @@ def get_model_list():
         if video.status == 2:
             postData = {'origin': True,'filename':video.name.split('.')[0]}
             response = requests.post(url, json=postData)
-            data.append({"url":response.json().get("url"),"name":video.name.split('.')[0]})
+            data.append({"url":response.json().get("url"),"name":video.name.split('.')[0].split('_')[1]})
     res.update(code=ResponseCode.Success,data=data)
+    return res.data
+
+@route(bp, '/delete', methods=['POST'])
+def delete():
+    res = ResMsg()
+    res.update(code=ResponseCode.SystemError)
+    try:
+        user_id = request.json.get("user_id")
+        video_name_list = request.json.get("video_name_list")
+        for video_name in video_name_list:
+            video_name = str(user_id) +'_'+ video_name + '.mp4'
+            video = Video.query.filter_by(user_id=user_id,name=video_name).first()
+            if video:
+                # 删除算法端截图数据
+                url = current_app.config['ALGORITHM_URL']+ '/delete'
+                postData = {'filename':video_name.split('.')[0]}
+                response = requests.post(url, json=postData)
+                if response.status_code == 200:
+                    db.session.delete(video)
+                    db.session.commit()
+                    res.update(code=ResponseCode.Success)
+    except Exception as e:
+        res.update(code=ResponseCode.Fail, data={"error": str(e)})
     return res.data
