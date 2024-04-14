@@ -10,7 +10,7 @@ COMMON: &common #标识
   SQLALCHEMY_TRACK_MODIFICATIONS: False
 
   # 算法端地址
-  ALGORITHM_URL: http://118.202.10.30:5001
+  ALGORITHM_URL: http://118.202.10.58:5001
 
   # 日志配置文件路径
   LOGGING_CONFIG_PATH: ./config/logging.yaml

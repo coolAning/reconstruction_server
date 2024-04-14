@@ -1,0 +1,10 @@
+2024/04/14 16:11:05 [emerg] 23684#24636: CreateFile() "D:\nginx 1.7.11.3 Gryphon/conf/nginx.conf" failed (2: The system cannot find the file specified)
+2024/04/14 16:11:25 [notice] 23912#24224: sockinit() attempting to access sockapi
+2024/04/14 16:11:25 [notice] 23912#24224: Access to sockapi succeded!
+2024/04/14 16:11:25 [notice] 23912#24224: using sockapi from "4;128;"
+2024/04/14 16:11:25 [notice] 13432#8660: sockinit() attempting to access sockapi
+2024/04/14 16:11:25 [notice] 13432#8660: Access to sockapi succeded!
+2024/04/14 16:11:25 [notice] 13432#8660: using sockapi from "4;8;"
+2024/04/14 16:13:23 [notice] 2892#12696: Fatal: wait for sockapi failed
+2024/04/14 16:13:28 [notice] 6384#23792: Fatal: wait for sockapi failed
+2024/04/14 16:13:31 [notice] 22096#20572: Fatal: wait for sockapi failed
