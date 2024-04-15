@@ -18,3 +18,4 @@ colmap.-shm
 colmap.wal
 colmap_text
 colmap_sparse
+nginx/logs/

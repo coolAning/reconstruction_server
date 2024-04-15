@@ -30,5 +30,6 @@ class Video(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey('user.id'), nullable=False)  # 用户id
     name = db.Column(db.String(20), nullable=False)  # 文件名 
+    train_steps = db.Column(db.Integer, default=1000)  # 训练步数
     status = db.Column(db.Integer, default=0)  # 文件状态 0:未处理 1:colmap处理完成  2:nerf处理完成
     task_id = db.Column(db.String(20), nullable=True)  # 任务id

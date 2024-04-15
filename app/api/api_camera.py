@@ -11,7 +11,7 @@ from app.utils.response import ResMsg
 from app.utils.util import route
 from app.utils.code import ResponseCode
 from werkzeug.utils import secure_filename
-from app.celery import process_video
+from app.celery import capture_frames_from_rtmp, process_video
 
 
 
@@ -122,6 +122,41 @@ def delete():
                     db.session.delete(video)
                     db.session.commit()
                     res.update(code=ResponseCode.Success)
+    except Exception as e:
+        res.update(code=ResponseCode.Fail, data={"error": str(e)})
+    return res.data
+
+
+@route(bp, '/setDroneVideo', methods=['POST'])
+def setDroneVideo():
+    res = ResMsg()
+    res.update(code=ResponseCode.SystemError)
+    try:
+        user_id = request.json.get("user_id")
+        name = request.json.get("name")
+        video_name = str(user_id) +'_'+ name
+        n_steps = request.json.get("n_steps")
+        video = Video.query.filter_by(user_id=user_id,name=video_name).first()    
+        
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], video_name , "images") 
+        if os.path.exists(filepath) or video:
+            res.update(code=ResponseCode.FileNameDuplicate)
+        else:
+            video = Video(user_id=user_id, name=video_name, status=0 ,task_id=None,train_steps=n_steps)
+            #  接收rtmp流截取图片
+            dirpath = os.path.dirname(filepath)
+            if not os.path.exists(dirpath):
+                # 如果目录不存在，创建目录
+                os.makedirs(dirpath)
+            out_path = os.path.join(current_app.config['UPLOAD_FOLDER'], video_name,'transforms.json')
+            url = "rtmp://127.0.0.1:6666/live" + "/" + video_name
+            result = capture_frames_from_rtmp.delay(url,user_id,video_name,n_steps,out_path)
+            video.task_id = result.id
+            db.session.add(video)
+            db.session.commit()
+            res.update(code=ResponseCode.Success)
+
+            
     except Exception as e:
         res.update(code=ResponseCode.Fail, data={"error": str(e)})
     return res.data
