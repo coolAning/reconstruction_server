@@ -99,7 +99,7 @@ def get_model_list():
         if video.status == 2:
             postData = {'origin': True,'filename':video.name.split('.')[0]}
             response = requests.post(url, json=postData)
-            data.append({"url":response.json().get("url"),"name":video.name.split('.')[0].split('_')[1]})
+            data.append({"url":response.json().get("url"),"name":video.name.split('.')[0].split('_',1)[1]})
     res.update(code=ResponseCode.Success,data=data)
     return res.data
 

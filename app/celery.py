@@ -121,7 +121,6 @@ def process_image(self,image_path,out_path,user_id,n_steps,filename):
     command = ["python", "colmap2nerf.py", "--colmap_matcher", "exhaustive", "--images",image_path, "--run_colmap", "--aabb_scale", "32", "--out", out_path, "--overwrite"]
     # 创建一个子进程来运行命令，并获取子进程的输出
     process = subprocess.Popen(command, cwd=current_app.config['ROOT_PATH'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    
     while True:
         # 读取一行输出
         output = process.stdout.readline()
@@ -132,15 +131,11 @@ def process_image(self,image_path,out_path,user_id,n_steps,filename):
         # 如果子进程已经结束，那么退出循环
         if process.poll() is not None:
             break
-
     rc = process.poll()
-
     # 更新任务状态为 'SUCCESS'
     self.update_state(state='SUCCESS', meta={'current': 'Task completed'})
-    
     # 更新数据库
     video = Video.query.filter_by(user_id=user_id,name=filename).first()
-    
     if video:
         video.status = 1
         video.task_id = None
