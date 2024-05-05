@@ -32,6 +32,8 @@ def upload_file():
     user_id = request.form.get('user_id', type=int)
     n_steps = request.form.get('n_steps', type=int)
     video_name = request.form.get('video_name', type=str)
+    aabb = request.form.get('aabb', type=int)
+    
     if 'file' not in request.files:
         res.update(code=ResponseCode.InvalidParameter)
     else:
@@ -55,8 +57,8 @@ def upload_file():
                     file.save(filepath)
                     out_path = os.path.join(current_app.config['UPLOAD_FOLDER'], path,'transforms.json')
                     # 使用colmap处理视频数据
-                    result = process_video.delay(filepath,out_path,user_id,filename,n_steps)
-                    video = Video(user_id=user_id, name=filename, status=0 ,task_id=result.id)
+                    result = process_video.delay(filepath,out_path,user_id,filename,n_steps,aabb)
+                    video = Video(user_id=user_id, name=filename, status=0 ,task_id=result.id,train_steps=n_steps,aabb=aabb)
                     db.session.add(video)
                     db.session.commit()
                     res.update(code=ResponseCode.Success, data={"task_id": result.id})
@@ -81,7 +83,7 @@ def complete():
     # 暂时采取发送渲染请求的方法
     url = current_app.config['ALGORITHM_URL']+ '/render'
     
-    data = {'origin': True,'filename':video.name.split('.')[0]}
+    data = {'origin': True,'filename':video.name.split('.')[0],'picture_quality': 1}
     requests.post(url, json=data)
     return res.data
 
@@ -136,13 +138,14 @@ def setDroneVideo():
         name = request.json.get("name")
         video_name = str(user_id) +'_'+ name
         n_steps = request.json.get("n_steps")
+        aabb = request.json.get("aabb")
         video = Video.query.filter_by(user_id=user_id,name=video_name).first()    
         
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], video_name , "images") 
         if os.path.exists(filepath) or video:
             res.update(code=ResponseCode.FileNameDuplicate)
         else:
-            video = Video(user_id=user_id, name=video_name, status=0 ,task_id=None,train_steps=n_steps)
+            video = Video(user_id=user_id, name=video_name, status=0 ,task_id=None,train_steps=n_steps,aabb=aabb)
             #  接收rtmp流截取图片
             dirpath = os.path.dirname(filepath)
             if not os.path.exists(dirpath):
@@ -150,7 +153,7 @@ def setDroneVideo():
                 os.makedirs(dirpath)
             out_path = os.path.join(current_app.config['UPLOAD_FOLDER'], video_name,'transforms.json')
             url = "rtmp://127.0.0.1:6666/live" + "/" + video_name
-            result = capture_frames_from_rtmp.delay(url,user_id,video_name,n_steps,out_path)
+            result = capture_frames_from_rtmp.delay(url,user_id,video_name,n_steps,out_path,aabb)
             video.task_id = result.id
             db.session.add(video)
             db.session.commit()

@@ -20,9 +20,9 @@ celery_app = Celery(__name__)
 
 
 @celery_app.task(bind=True)
-def process_video(self , video_path , out_path,user_id,filename,n_steps):
+def process_video(self , video_path , out_path,user_id,filename,n_steps,aabb):
     # 这里是你的长时间运行的任务
-    command = ["python", "colmap2nerf.py", "--video_in", video_path, "--video_fps", "2", "--run_colmap", "--aabb_scale", "32", "--out", out_path, "--overwrite"]
+    command = ["python", "colmap2nerf.py", "--video_in", video_path, "--video_fps", "2", "--run_colmap", "--aabb_scale", str(aabb), "--out", out_path, "--overwrite"]
     # 创建一个子进程来运行命令，并获取子进程的输出
     process = subprocess.Popen(command, cwd=current_app.config['ROOT_PATH'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     
@@ -95,7 +95,7 @@ def process_file(fullfilename, user_id, n_steps,filepath="./video"):
 
 
 @celery_app.task
-def capture_frames_from_rtmp(url, user_id, fullfilename, n_steps,outpath, path="./video"):
+def capture_frames_from_rtmp(url, user_id, fullfilename, n_steps,outpath,aabb, path="./video"):
     path = os.path.join(path, fullfilename, "images")
     os.makedirs(path, exist_ok=True)  # 确保目录存在
     cap = cv2.VideoCapture(url)
@@ -111,14 +111,14 @@ def capture_frames_from_rtmp(url, user_id, fullfilename, n_steps,outpath, path="
             cv2.imwrite(os.path.join(path, f'{str(frame_count // frame_interval + 1).zfill(4)}.jpg'), frame)
         frame_count += 1
     cap.release()
-    process_image.delay(path,outpath,user_id,n_steps,fullfilename)
+    process_image.delay(path,outpath,user_id,n_steps,fullfilename,aabb)
         
 
 
 @celery_app.task(bind=True)
-def process_image(self,image_path,out_path,user_id,n_steps,filename):
+def process_image(self,image_path,out_path,user_id,n_steps,filename,aabb):
     # 这里是你的长时间运行的任务
-    command = ["python", "colmap2nerf.py", "--colmap_matcher", "exhaustive", "--images",image_path, "--run_colmap", "--aabb_scale", "32", "--out", out_path, "--overwrite"]
+    command = ["python", "colmap2nerf.py", "--colmap_matcher", "exhaustive", "--images",image_path, "--run_colmap", "--aabb_scale", str(aabb), "--out", out_path, "--overwrite"]
     # 创建一个子进程来运行命令，并获取子进程的输出
     process = subprocess.Popen(command, cwd=current_app.config['ROOT_PATH'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     while True:
